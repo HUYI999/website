@@ -4,8 +4,8 @@ console.log("Script loaded");
 async function sendMessage() {
     // 获取用户输入
     const userInput = document.getElementById('userInput').value;
-    // 在这里设置你的 OpenAI API 密钥
-    const apiKey = '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';
+    // 你的 OpenAI API 密钥
+    const apiKey = 'sk-ahsPnuon9D0skMxwlWSZ0nsgGNT1yc5BE-ZMOxbVpHT3BlbkFJIvucf_H_pgrWZnykS3oONRnwWkv9iG2dfdOpBryXYA';  // 请替换为你的最新 OpenAI API 密钥
 
     // 获取用于显示回复的元素
     const responseElement = document.getElementById('response');
@@ -13,7 +13,7 @@ async function sendMessage() {
 
     // 请求体内容，发送到 OpenAI API
     const requestBody = {
-        model: 'gpt-4', // 指定使用 GPT-4
+        model: 'gpt-4',  // 指定使用 GPT-4 模型
         messages: [{ role: 'user', content: userInput }],
         max_tokens: 150
     };
@@ -24,20 +24,29 @@ async function sendMessage() {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'Authorization': `Bearer ${apiKey}`
+                'Authorization': `Bearer ${apiKey}`  // 使用 Bearer 令牌进行身份验证
             },
             body: JSON.stringify(requestBody)
         });
 
-        // 处理返回的响应
-        const data = await response.json();
-        const aiResponse = data.choices[0].message.content;
+        // 检查是否有 HTTP 错误（如 401 未授权错误）
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
 
-        // 显示返回的 GPT-4 响应
+        // 解析 API 返回的数据
+        const data = await response.json();
+        // 确保数据的格式是正确的
+        if (!data.choices || !data.choices[0]) {
+            throw new Error("No response from API");
+        }
+
+        // 显示 AI 的回复
+        const aiResponse = data.choices[0].message.content;
         responseElement.innerHTML = `<p>${aiResponse}</p>`;
     } catch (error) {
-        // 如果出错，显示错误信息
-        responseElement.innerHTML = 'Error: ' + error.message;
+        // 如果有任何错误，显示错误信息
+        responseElement.innerHTML = `Error: ${error.message}`;
         console.error('Error:', error);
     }
 }
