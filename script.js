@@ -5,7 +5,7 @@ async function sendMessage() {
     // 获取用户输入
     const userInput = document.getElementById('userInput').value;
     // 你的 OpenAI API 密钥
-    const apiKey = 'sk-ahsPnuon9D0skMxwlWSZ0nsgGNT1yc5BE-ZMOxbVpHT3BlbkFJIvucf_H_pgrWZnykS3oONRnwWkv9iG2dfdOpBryXYA';  // 请替换为你的最新 OpenAI API 密钥
+    const apiKey = 'sk-8o67tITGla3yHuZplvcp0GMCZDhBgn9D19tgKztDpKT3BlbkFJ9UqI68yh491hz9J19h5_CN52sZRH2SwBk13VHS7rUA';  // 请替换为你的最新 OpenAI API 密钥
 
     // 获取用于显示回复的元素
     const responseElement = document.getElementById('response');
