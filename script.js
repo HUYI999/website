@@ -5,7 +5,7 @@ async function getResponse() {
     // 显示加载中的状态
     responseElement.innerHTML = "Loading...";
 
-    const apiKey = "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";  // 确保替换为正确的 API 密钥
+    const apiKey = "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";  // 确保替换为正确的 API 密钥
     const url = "https://api.openai.com/v1/chat/completions";
     const requestData = {
         model: "gpt-4",
