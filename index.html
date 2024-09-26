@@ -3,16 +3,161 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chat with GPT-4</title>
-    <link rel="stylesheet" href="style.css"> <!-- 引用样式文件 -->
+    <title>Chat with OpenAI</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f4f4f4;
+        }
+        textarea, input {
+            width: 100%;
+            padding: 10px;
+            font-size: 16px;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            margin-top: 10px;
+            cursor: pointer;
+        }
+        #login {
+            display: none;
+            margin-bottom: 20px;
+        }
+        #chat {
+            display: none;
+        }
+        #response, #history {
+            margin-top: 20px;
+            padding: 10px;
+            background-color: white;
+            border-radius: 5px;
+            box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.1);
+        }
+        .message {
+            margin-bottom: 10px;
+        }
+        .user-message {
+            font-weight: bold;
+            color: #007BFF;
+        }
+        .ai-message {
+            font-weight: normal;
+            color: #000;
+        }
+    </style>
 </head>
 <body>
-    <h1>希望可以帮到你，爱你❤️</h1>
-    <textarea id="userInput" placeholder="Type your message here..."></textarea>
-    <button onclick="sendMessage()">Send</button>
-    <div id="response"></div>
+    <h1>Chat with OpenAI</h1>
+    
+    <div id="login">
+        <h2>Enter Password</h2>
+        <input type="password" id="passwordInput" placeholder="Enter password"><br>
+        <button onclick="login()">Login</button>
+        <div id="loginError" style="color: red;"></div>
+    </div>
 
-    <!-- 引用外部 JavaScript 文件 -->
-    <script src="script.js"></script>
+    <div id="chat">
+        <textarea id="userInput" placeholder="Type your message here..." rows="4"></textarea><br>
+        <button onclick="sendMessage()">Send</button>
+
+        <h2>Response:</h2>
+        <div id="response">Type a message and click "Send" to get a response from OpenAI.</div>
+
+        <h2>Chat History:</h2>
+        <div id="history"></div>
+    </div>
+
+    <script>
+        const password = 'mypassword'; // 设置简单的登录密码
+        let chatHistory = [
+            { role: 'system', content: 'You are a helpful assistant.' }
+        ];
+
+        // 登录功能
+        function login() {
+            const userInput = document.getElementById('passwordInput').value;
+            const loginError = document.getElementById('loginError');
+            if (userInput === password) {
+                document.getElementById('login').style.display = 'none';
+                document.getElementById('chat').style.display = 'block';
+            } else {
+                loginError.textContent = 'Incorrect password. Try again.';
+            }
+        }
+
+        // 发送消息到 OpenAI API 并处理历史记录
+        async function sendMessage() {
+            const userInput = document.getElementById('userInput').value;
+            const responseElement = document.getElementById('response');
+
+            if (userInput.trim() === '') {
+                responseElement.innerHTML = 'Please enter a message.';
+                return;
+            }
+
+            responseElement.innerHTML = 'Loading...';
+            
+            // 将用户消息添加到历史记录
+            chatHistory.push({ role: 'user', content: userInput });
+            updateHistory();
+
+            try {
+                const response = await fetch('https://your-vercel-app-url/api/openai', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        model: 'gpt-4', // 或 'gpt-3.5-turbo'
+                        messages: chatHistory // 发送历史消息
+                    })
+                });
+
+                const data = await response.json();
+                const aiResponse = data.choices[0].message.content;
+
+                // 更新响应部分和历史记录
+                responseElement.innerHTML = `<p>${aiResponse}</p>`;
+                chatHistory.push({ role: 'assistant', content: aiResponse });
+                updateHistory();
+
+                // 清空输入框
+                document.getElementById('userInput').value = '';
+            } catch (error) {
+                responseElement.innerHTML = `Error: ${error.message}`;
+                console.error('Error:', error);
+            }
+        }
+
+        // 更新历史记录的显示
+        function updateHistory() {
+            const historyElement = document.getElementById('history');
+            historyElement.innerHTML = '';
+
+            chatHistory.forEach(message => {
+                const messageElement = document.createElement('div');
+                messageElement.classList.add('message');
+
+                if (message.role === 'user') {
+                    messageElement.classList.add('user-message');
+                    messageElement.innerHTML = `<strong>User:</strong> ${message.content}`;
+                } else if (message.role === 'assistant') {
+                    messageElement.classList.add('ai-message');
+                    messageElement.innerHTML = `<strong>AI:</strong> ${message.content}`;
+                }
+
+                historyElement.appendChild(messageElement);
+            });
+        }
+
+        // 页面加载时显示登录框
+        window.onload = function() {
+            document.getElementById('login').style.display = 'block';
+        };
+    </script>
 </body>
 </html>
